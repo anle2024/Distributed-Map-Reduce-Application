@@ -2,6 +2,8 @@
 
 A Python implementation of the distributed MapReduce framework for processing large datasets across multiple worker processes. Features fault tolerance, automatic task reassignment, and pluggable applications.
 
+![Distributed MapReduce Architecture](distributed-mapreduce.png)
+
 ## 🚀 Quick Start
 
 ### Option 1: Automated Demo
@@ -9,7 +11,7 @@ A Python implementation of the distributed MapReduce framework for processing la
 Run the complete demonstration with a single command:
 
 ```bash
-python examples/demo.py
+python3 examples/demo.py
 ```
 
 ### Option 2: Manual Execution
@@ -48,14 +50,14 @@ mr-worker apps/word_count.py
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd distributed-mapreduce
+git clone https://github.com/anle2024/Distributed-Map-Reduce-Application.git
+cd Distributed-Map-Reduce-Application
 
-# Create virtual environment
-python -m venv .venv
+# Create virtual environment (recommended)
+python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install dependencies
+# Install dependencies and package
 pip install -e .
 ```
 
@@ -146,23 +148,23 @@ class MyCountApp(MapReduceApp):
 ### Run All Tests
 
 ```bash
-python -m pytest tests/
+python3 -m pytest tests/
 ```
 
 ### Run Specific Tests
 
 ```bash
 # Basic functionality
-python -m pytest tests/test_basic.py
+python3 -m pytest tests/test_basic.py
 
 # Parallel execution and fault tolerance
-python -m pytest tests/test_parallel.py
+python3 -m pytest tests/test_parallel.py
 ```
 
 ### Test with Coverage
 
 ```bash
-python -m pytest tests/ --cov=mapreduce --cov-report=html
+python3 -m pytest tests/ --cov=mapreduce --cov-report=html
 ```
 
 ## 🐛 Troubleshooting
@@ -208,12 +210,24 @@ distributed-mapreduce/
 ├── DESIGN_DOC.md               # System design and architecture
 ├── setup.py                    # Package installation
 ├── requirements.txt             # Dependencies
+├── .gitignore                   # Git ignore patterns
 ├── src/mapreduce/              # Core implementation
+│   ├── __init__.py
+│   ├── coordinator.py          # Task coordination
+│   ├── worker.py               # Task execution
+│   ├── mapreduce.py            # Data structures
+│   └── rpc_utils.py            # Network communication
 ├── apps/                       # MapReduce applications
+│   ├── __init__.py
+│   └── word_count.py           # Word counting example
 ├── bin/                        # Executable scripts
+│   ├── mr-coordinator          # Coordinator entry point
+│   └── mr-worker               # Worker entry point
 ├── tests/                      # Test suite
-├── examples/                   # Usage examples
-└── docs/                       # Additional documentation
+│   ├── test_basic.py           # Basic functionality tests
+│   └── test_parallel.py        # Parallel and crash recovery tests
+└── examples/                   # Usage examples
+    └── demo.py                 # Complete working demonstration
 ```
 
 ## 📖 Documentation
@@ -226,7 +240,7 @@ distributed-mapreduce/
 1. Fork the repository
 2. Create a feature branch: `git checkout -b my-feature`
 3. Make your changes and add tests
-4. Run tests: `python -m pytest`
+4. Run tests: `python3 -m pytest`
 5. Commit: `git commit -m "Add my feature"`
 6. Push: `git push origin my-feature`
 7. Create a Pull Request
@@ -234,19 +248,6 @@ distributed-mapreduce/
 ## 📄 License
 
 This project is open source and available under the MIT License.
-
-## 📚 For New Developers
-
-**New to this codebase?** Start here:
-
-- 📖 **[Newcomer's Guide](docs/NEWCOMER_GUIDE.md)** - Step-by-step guide to understanding the code
-- 📋 **[Quick Reference](docs/QUICK_REFERENCE.md)** - Cheat sheet for classes, functions, and patterns
-- 🎯 **[Getting Started](docs/GETTING_STARTED.md)** - Basic usage and setup
-- 🔄 **[Workflow Guide](docs/WORKFLOW_GUIDE.md)** - Detailed technical documentation
-
-## Quick Start
-
-### Option 1: Automated Demo
 
 Run the complete demonstration with a single command:
 
@@ -522,44 +523,40 @@ Test coverage includes:
 - **Memory Usage**: Intermediate data is written to disk, not kept in memory
 - **Network Overhead**: Minimal RPC communication between coordinator and workers
 
-## Comparison with Go Implementation
-
-This Python implementation follows the same design principles as the original Go lab:
-
-| Aspect          | Go Version         | Python Version         |
-| --------------- | ------------------ | ---------------------- |
-| **RPC**         | Go's `net/rpc`     | Custom TCP/JSON        |
-| **Plugins**     | Go plugins (`.so`) | Python imports (`.py`) |
-| **Concurrency** | Goroutines         | Threading              |
-| **File I/O**    | Standard library   | Standard library       |
-| **Testing**     | Shell scripts      | pytest                 |
-
-## Troubleshooting
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **"Failed to connect to coordinator"**
+**1. "coordinator_info.txt not found"**
 
-   - Ensure coordinator is running before starting workers
-   - Check that `coordinator_info.txt` file exists
+- Make sure coordinator is running before starting workers
+- Check that coordinator started successfully (should print port number)
 
-2. **"Task timeout" errors**
+**2. "Import module not found"**
 
-   - Increase timeout in coordinator if processing large files
-   - Check for infinite loops in map/reduce functions
+- Ensure you're running from the project root directory
+- Check that the MapReduce application file exists
 
-3. **Missing output files**
+**3. Workers not getting tasks**
 
-   - Verify all workers completed successfully
-   - Check coordinator logs for task failures
+- Verify coordinator and workers are running in same directory
+- Check coordinator logs for task assignment messages
 
-4. **Import errors**
-   - Ensure all Python files are in the same directory
-   - Check that MapReduce application inherits from `MapReduceApp`
+**4. Tasks timing out**
 
-### Debugging
+- Default timeout is 10 seconds
+- Check if input files are too large or map/reduce functions are too slow
 
-Enable verbose logging by adding print statements or using Python's logging module. The coordinator and workers output status information during execution.
+### Debug Mode
+
+Add print statements to see what's happening:
+
+```python
+# In your map/reduce functions
+def map_func(self, filename: str, contents: str) -> List[KeyValue]:
+    print(f"Processing {filename} with {len(contents)} characters")
+    # ... your code
+```
 
 ## References
 
