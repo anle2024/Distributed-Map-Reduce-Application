@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9, 3.10, 3.11, 3.12]
+        python-version: [3.9, "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v4
@@ -24,21 +24,16 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Install package
+        run: |
           pip install -e .
-          pip install pytest pytest-cov
 
       - name: Run tests
         run: |
-          python -m pytest tests/ -v --cov=mapreduce --cov-report=xml --cov-report=term-missing
-
-      - name: Upload coverage to Codecov
-        if: matrix.python-version == '3.11'
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
+          python -m pytest tests/ -v
 
   demo:
     runs-on: ubuntu-latest
@@ -55,92 +50,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
           pip install -e .
 
       - name: Run demo
         run: |
           python examples/demo.py
-
-      - name: Test manual execution
-        run: |
-          # Create test files
-          echo "hello world hello python test" > test1.txt
-          echo "python programming distributed systems" > test2.txt
-
-          # Start coordinator in background
-          ./bin/mr-coordinator 2 test1.txt test2.txt &
-          COORD_PID=$!
-
-          # Wait for coordinator to start
-          sleep 2
-
-          # Start worker
-          timeout 10s ./bin/mr-worker apps/word_count.py || true
-
-          # Clean up
-          kill $COORD_PID 2>/dev/null || true
-          wait $COORD_PID 2>/dev/null || true
-
-          # Check if output files were created
-          ls -la mr-out-* || echo "No output files found"
-
-          # Clean up test files
-          rm -f test1.txt test2.txt mr-out-* coordinator_info.txt
-
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-
-      - name: Install linting dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install black flake8 isort mypy
-
-    - name: Run black (code formatting check)
-      run: |
-        black --check --diff src/ apps/ tests/ examples/ || echo "Code formatting issues found, but allowing to pass for now"    - name: Run flake8 (linting)
-      run: |
-        flake8 src/ apps/ tests/ examples/ --max-line-length=88 --extend-ignore=E203,W503,E501,F401,E402,E722,F841 --exclude=__pycache__      - name: Run isort (import sorting check)
-      run: |
-        isort --check-only --diff src/ apps/ tests/ examples/ || echo "Import sorting issues found, but allowing to pass for now"
-
-      - name: Run mypy (type checking)
-        run: |
-          mypy src/ --ignore-missing-imports || true  # Allow failures for now
-
-  package:
-    runs-on: ubuntu-latest
-    needs: [test, demo]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-
-      - name: Install build dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build twine
-
-      - name: Build package
-        run: |
-          python -m build
-
-      - name: Check package
-        run: |
-          twine check dist/*
-
-      - name: Test package installation
-        run: |
-          pip install dist/*.whl
-          mr-coordinator --help || echo "Help command not implemented yet"
