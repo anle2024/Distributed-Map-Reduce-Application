@@ -1,0 +1,17 @@
+# Python dependencies for distributed MapReduce implementation
+
+# Testing framework
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# No additional dependencies required - uses only Python standard library:
+# - threading (for concurrent execution)
+# - socket (for RPC communication) 
+# - json (for message serialization)
+# - os, tempfile (for file operations)
+# - time (for timeouts and monitoring)
+# - uuid (for worker IDs)
+# - importlib (for dynamic loading of MapReduce applications)
+# - dataclasses (for structured data)
+# - enum (for task types and status)
+# - typing (for type hints)
