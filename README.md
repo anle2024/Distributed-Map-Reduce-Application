@@ -1,5 +1,10 @@
 # Distributed MapReduce in Python
 
+[![CI](https://github.com/anle2024/Distributed-Map-Reduce-Application/workflows/CI/badge.svg)](https://github.com/anle2024/Distributed-Map-Reduce-Application/actions)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 A Python implementation of the distributed MapReduce framework for processing large datasets across multiple worker processes. Features fault tolerance, automatic task reassignment, and pluggable applications.
 
 ![Distributed MapReduce Architecture](distributed-mapreduce.png)
